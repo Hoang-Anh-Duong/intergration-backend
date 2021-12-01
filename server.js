@@ -11,6 +11,7 @@ app.use(cors());
 
 // api routes
 app.use('/users', require('./src/users/user.controller'));
+app.use('/tags', require('./src/tags/tag.controller'));
 
 // global error handler
 app.use(errorHandler);

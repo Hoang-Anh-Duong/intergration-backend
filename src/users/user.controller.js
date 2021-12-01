@@ -8,11 +8,12 @@ const userService = require('./user.service');
 // routes
 router.post('/authenticate', authenticateSchema, authenticate);
 router.post('/register', registerSchema, register);
-router.get('/', authorize(), getAll);
-router.get('/current', authorize(), getCurrent);
-router.get('/:id', authorize(), getById);
-router.put('/:id', authorize(), updateSchema, update);
-router.delete('/:id', authorize(), _delete);
+router.get('/', authorize.authorize(), getAll);
+router.get('/current', authorize.authorize(), getCurrent);
+router.get('/:id', authorize.authorize(), getById);
+router.put('/:id', authorize.authorize(), updateSchema, update);
+router.delete('/:id', authorize.authorize(), _delete);
+router.get('/verifiedMail/:token', verifiedMail);
 
 module.exports = router;
 
@@ -42,9 +43,8 @@ function registerSchema(req, res, next) {
 }
 
 function register(req, res, next) {
-    console.log(req.body);
     userService.create(req.body)
-        .then(() => res.json({ message: 'Registration successful' }))
+        .then(token => res.json(token))
         .catch(next);
 }
 
@@ -83,5 +83,11 @@ function update(req, res, next) {
 function _delete(req, res, next) {
     userService.delete(req.params.id)
         .then(() => res.json({ message: 'User deleted successfully' }))
+        .catch(next);
+}
+
+function verifiedMail(req, res, next) {
+    userService.verifiedMail(req.params.token)
+        .then(() => res.json({ message: 'Success' }))
         .catch(next);
 }

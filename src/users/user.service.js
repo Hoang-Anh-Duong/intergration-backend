@@ -1,8 +1,8 @@
 const config = require('config.json');
-const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const db = require('_helpers/db');
-const sendMail = require('_helpers/sendMail')
+const sendMail = require('_helpers/sendMail');
+const jwt = require('_helpers/jwt');
 
 module.exports = {
     authenticate,
@@ -10,7 +10,8 @@ module.exports = {
     getById,
     create,
     update,
-    delete: _delete
+    delete: _delete,
+    verifiedMail
 };
 
 async function authenticate({ username, password }) {
@@ -19,11 +20,15 @@ async function authenticate({ username, password }) {
     if (!user || !(await bcrypt.compare(password, user.hash)))
         throw 'Username or password is incorrect';
 
-    if(!user.isActive)
+    if (!user.isActive)
         throw 'Please check mail and vertified';
 
     // authentication successful
-    const token = jwt.sign({ sub: user.id }, config.secret, { expiresIn: '7d' });
+    const token = await jwt.generateToken(
+        user,
+        config.secret,
+        '7d'
+    );
     return { ...omitHash(user.get()), token };
 }
 
@@ -46,21 +51,28 @@ async function create(params) {
         params.hash = await bcrypt.hash(params.password, 10);
     }
 
+    // save user
+    const user = await db.User.create(params);
+
     // send mail vertified
+    const token = jwt.generateToken(
+        user.get(),
+        config.secret,
+        '7d'
+    );
     const options = {
         from: config.emailHost,
         to: params.email,
-        subject: 'Test Email Subject',
+        subject: 'Xác Nhận Gmail',
         template: 'mail-verified-template',
         context: {
             name: params.username,
-            linkVerified: "https://localhost:4000/users/verifiedMail"
+            linkVerified: "https://localhost:4000/users/verifiedMail/" + token,
         },
     }
     sendMail(options);
 
-    // save user
-    await db.User.create(params);
+    return token;
 }
 
 async function update(id, params) {
@@ -87,6 +99,22 @@ async function update(id, params) {
 async function _delete(id) {
     const user = await getUser(id);
     await user.destroy();
+}
+
+async function verifiedMail(token) {
+    const detoken = jwt.verifyToken(token, config.secret);
+
+    // get user by detoken
+    let user = await db.User.findOne({ detoken });
+
+    // verified token
+    if (!user) {
+        throw "Verified fail!";
+    }
+
+    // active account and save user
+    user.isActive = true;
+    await user.save();
 }
 
 // helper functions

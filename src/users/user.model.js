@@ -8,8 +8,9 @@ function model(sequelize) {
         lastName: { type: DataTypes.STRING, allowNull: false },
         username: { type: DataTypes.STRING, allowNull: false },
         hash: { type: DataTypes.STRING, allowNull: false },
-        email: {type: DataTypes.STRING, allowNull: false },
-        isActive: {type: DataTypes.BOOLEAN, default: false }
+        email: { type: DataTypes.STRING, allowNull: false },
+        isActive: { type: DataTypes.BOOLEAN, defaultValue: false },
+        role: { type: DataTypes.STRING, defaultValue: "USER_ROLE" }
     };
 
     const options = {
