@@ -7,20 +7,26 @@ module.exports = db = {};
 initialize();
 
 async function initialize() {
-  // create db if it doesn't already exist
-  const { host, port, user, password, database } = config.database;
-  const connection = await mysql.createConnection({
-    host: "us-cdbr-east-05.cleardb.net",
-    user: "b5197dec20d17e",
-    password: "9a93496b",
-    database: "heroku_f4a13dc33299292",
-  });
-  await connection.query(`CREATE DATABASE IF NOT EXISTS \`${database}\`;`);
-
-  // connect to db
-  const sequelize = new Sequelize(database, user, password, {
-    dialect: "mysql",
-  });
+    // create db if it doesn't already exist
+    const { host, user, password, database } = config.database;
+    console.log("host",host);
+    console.log("user",user)
+    console.log("password",password)
+    console.log("database",database)
+    const connection = await mysql.createConnection(
+        {  
+            host: 'us-cdbr-east-05.cleardb.net',
+            user: 'b5197dec20d17e',
+            password: '9a93496b' 
+        });
+    // await connection.query(`CREATE DATABASE IF NOT EXISTS \`heroku_f4a13dc33299292\`;`);
+ console.log("connection",connection)
+    // connect to db
+    const sequelize = new Sequelize("mysql://b5197dec20d17e:9a93496b@us-cdbr-east-05.cleardb.net/heroku_f4a13dc33299292");
+     console.log("sequelize",sequelize)
+    // init models and add them to the exported db object
+    db.User = require('../src/users/user.model')(sequelize);
+    db.Setting = require('../src/setting/setting.model')(sequelize);
 
   // init models and add them to the exported db object
   db.User = require("../src/users/user.model")(sequelize);
