@@ -1,5 +1,5 @@
 const config = require('config.json');
-const mysql = require('mysql2');
+const mysql = require('mysql2/promise');
 const { Sequelize } = require('sequelize');
 
 module.exports = db = {};
