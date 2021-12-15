@@ -15,10 +15,10 @@ async function initialize() {
             user: 'b5197dec20d17e',
             password: '9a93496b' 
         });
-    await connection.query(`CREATE DATABASE IF NOT EXISTS \`${database}\`;`);
+    await connection.query(`CREATE DATABASE IF NOT EXISTS \`heroku_f4a13dc33299292\`;`);
 
     // connect to db
-    const sequelize = new Sequelize(database, user, password, { dialect: 'mysql' });
+    const sequelize = new Sequelize("heroku_f4a13dc33299292", 'b5197dec20d17e', '9a93496b', { dialect: 'mysql' });
     
     // init models and add them to the exported db object
     db.User = require('../src/users/user.model')(sequelize);
