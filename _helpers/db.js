@@ -8,12 +8,12 @@ initialize();
 
 async function initialize() {
     // create db if it doesn't already exist
-    const { host, port, user, password, database } = config.database;
+    const { host, user, password, database } = config.database;
     const connection = await mysql.createConnection(
         {  
-            host: 'heroku_f4a13dc33299292',
+            host: 'us-cdbr-east-05.cleardb.net',
             user: 'b5197dec20d17e',
-            database: '9a93496b' 
+            password: '9a93496b' 
         });
     await connection.query(`CREATE DATABASE IF NOT EXISTS \`${database}\`;`);
 
